@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Klinik REST API",
-    "description": "CRUD pasien, dokter, janji temu. Jalankan pada database hasil seed.",
+    "description": "Tugas API Development dan Microservices - Ervareza Naurian Novantila (24.01.53.0018).\n\nPengujian pasien, dokter, dan janji temu. Jalankan `npm run seed` sebelum menjalankan seluruh collection.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -14,779 +14,1559 @@
       "value": ""
     },
     {
-      "key": "etag",
+      "key": "doctorId",
       "value": ""
     },
     {
       "key": "appointmentId",
       "value": ""
+    },
+    {
+      "key": "etag",
+      "value": ""
+    },
+    {
+      "key": "etag5",
+      "value": ""
     }
   ],
   "item": [
     {
-      "name": "Pasien - GET daftar + filter",
-      "event": [
+      "name": "1. Pasien - CRUD",
+      "description": "Siklus lengkap resource pasien: daftar, tambah, detail, ganti seluruh data, ubah sebagian, dan hapus. PUT dan PATCH wajib mengirim header If-Match berisi ETag terbaru.",
+      "item": [
         {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "pm.test('status 200', () => pm.response.to.have.status(200));",
-              "pm.test('meta pagination', () => pm.expect(pm.response.json().meta.limit).to.eql(2));"
-            ]
-          }
-        }
-      ],
-      "request": {
-        "method": "GET",
-        "header": [
-          {
-            "key": "Accept",
-            "value": "application/json"
-          }
-        ],
-        "url": {
-          "raw": "{{baseUrl}}/patients?gender=FEMALE&sortBy=fullName&sortOrder=asc&page=1&limit=2",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "patients"
-          ],
-          "query": [
+          "name": "Daftar pasien (filter, sorting, pagination)",
+          "event": [
             {
-              "key": "gender",
-              "value": "FEMALE"
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Waktu respons di bawah 1 detik', () => pm.expect(pm.response.responseTime).to.be.below(1000));",
+                  "pm.test('Content-Type JSON', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));",
+                  "pm.test('Meta pagination sesuai', () => {",
+                  "  const { meta } = pm.response.json();",
+                  "  pm.expect(meta.page).to.eql(1);",
+                  "  pm.expect(meta.limit).to.eql(2);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "description": "Mengambil pasien perempuan, diurutkan menurut nama, dua data per halaman.",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/patients?gender=FEMALE&sortBy=fullName&sortOrder=asc&page=1&limit=2",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "patients"
+              ],
+              "query": [
+                {
+                  "key": "gender",
+                  "value": "FEMALE"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "fullName"
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "asc"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "2"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Tambah pasien",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Waktu respons di bawah 1 detik', () => pm.expect(pm.response.responseTime).to.be.below(1000));",
+                  "pm.test('Content-Type JSON', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));",
+                  "pm.test('Header Location dan ETag ada', () => {",
+                  "  pm.response.to.have.header('Location');",
+                  "  pm.response.to.have.header('ETag');",
+                  "});",
+                  "pm.collectionVariables.set('patientId', pm.response.json().id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "description": "Mendaftarkan pasien baru. Respons memuat header Location dan ETag.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/patients",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "patients"
+              ],
+              "query": []
             },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"medicalRecordNumber\": \"RM-000100\",\n  \"nik\": \"3273010000000100\",\n  \"fullName\": \"Budi Hartono\",\n  \"birthDate\": \"1992-08-17\",\n  \"gender\": \"MALE\",\n  \"phone\": \"+6281200000100\",\n  \"address\": \"Jl. Riau No. 7, Bandung\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Detail pasien",
+          "event": [
             {
-              "key": "sortBy",
-              "value": "fullName"
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Waktu respons di bawah 1 detik', () => pm.expect(pm.response.responseTime).to.be.below(1000));",
+                  "pm.test('Content-Type JSON', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));",
+                  "pm.test('Data sesuai', () => pm.expect(pm.response.json().medicalRecordNumber).to.eql('RM-000100'));",
+                  "pm.collectionVariables.set('etag', pm.response.headers.get('ETag'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "description": "Membaca satu pasien dan menyimpan ETag untuk perubahan berikutnya.",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/patients/{{patientId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "patients",
+                "{{patientId}}"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "Ganti seluruh data pasien",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Waktu respons di bawah 1 detik', () => pm.expect(pm.response.responseTime).to.be.below(1000));",
+                  "pm.test('Content-Type JSON', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));",
+                  "pm.test('Versi naik menjadi 2', () => pm.expect(pm.response.json().version).to.eql(2));",
+                  "pm.collectionVariables.set('etag', pm.response.headers.get('ETag'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "description": "Mengganti seluruh representasi pasien. Versi data naik menjadi 2.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "If-Match",
+                "value": "{{etag}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/patients/{{patientId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "patients",
+                "{{patientId}}"
+              ],
+              "query": []
             },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"medicalRecordNumber\": \"RM-000100\",\n  \"nik\": \"3273010000000100\",\n  \"fullName\": \"Budi Hartono Saputra\",\n  \"birthDate\": \"1992-08-17\",\n  \"gender\": \"MALE\",\n  \"phone\": \"+6281200000100\",\n  \"address\": \"Jl. Riau No. 7, Bandung\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Ubah sebagian data pasien",
+          "event": [
             {
-              "key": "sortOrder",
-              "value": "asc"
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Waktu respons di bawah 1 detik', () => pm.expect(pm.response.responseTime).to.be.below(1000));",
+                  "pm.test('Content-Type JSON', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));",
+                  "pm.test('Hanya telepon berubah', () => {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.phone).to.eql('+6281200000199');",
+                  "  pm.expect(body.fullName).to.eql('Budi Hartono Saputra');",
+                  "  pm.expect(body.version).to.eql(3);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "description": "Hanya nomor telepon yang berubah; field lain tetap.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "If-Match",
+                "value": "{{etag}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/patients/{{patientId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "patients",
+                "{{patientId}}"
+              ],
+              "query": []
             },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"+6281200000199\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Hapus pasien",
+          "event": [
             {
-              "key": "page",
-              "value": "1"
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 204', () => pm.response.to.have.status(204));",
+                  "pm.test('Waktu respons di bawah 1 detik', () => pm.expect(pm.response.responseTime).to.be.below(1000));",
+                  "pm.test('Body kosong', () => pm.expect(pm.response.text()).to.eql(''));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "description": "Menghapus pasien tanpa riwayat janji temu. Respons 204 tanpa body.",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/patients/{{patientId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "patients",
+                "{{patientId}}"
+              ],
+              "query": []
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Dokter - CRUD",
+      "description": "CRUD dokter. Daftar dokter boleh di-cache karena bukan data sensitif.",
+      "item": [
+        {
+          "name": "Daftar dokter aktif",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Waktu respons di bawah 1 detik', () => pm.expect(pm.response.responseTime).to.be.below(1000));",
+                  "pm.test('Content-Type JSON', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));",
+                  "pm.test('Boleh di-cache 60 detik', () => pm.expect(pm.response.headers.get('Cache-Control')).to.eql('public, max-age=60'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "description": "Filter dokter aktif. Respons memakai Cache-Control public, max-age=60.",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/doctors?isActive=true&sortBy=fullName&sortOrder=asc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "doctors"
+              ],
+              "query": [
+                {
+                  "key": "isActive",
+                  "value": "true"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "fullName"
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "asc"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Tambah dokter",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Waktu respons di bawah 1 detik', () => pm.expect(pm.response.responseTime).to.be.below(1000));",
+                  "pm.test('Content-Type JSON', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));",
+                  "pm.collectionVariables.set('doctorId', pm.response.json().id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "description": "Menambah dokter baru dengan nomor SIP unik.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/doctors",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "doctors"
+              ],
+              "query": []
             },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"licenseNumber\": \"SIP-2024-0100\",\n  \"fullName\": \"dr. Rina Kartika\",\n  \"specialty\": \"UMUM\",\n  \"dailyQuota\": 15\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Detail dokter",
+          "event": [
             {
-              "key": "limit",
-              "value": "2"
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Waktu respons di bawah 1 detik', () => pm.expect(pm.response.responseTime).to.be.below(1000));",
+                  "pm.test('Content-Type JSON', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));"
+                ]
+              }
             }
-          ]
-        }
-      }
-    },
-    {
-      "name": "Pasien - POST tambah",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "pm.test('status 201', () => pm.response.to.have.status(201));",
-              "pm.collectionVariables.set('patientId', pm.response.json().id); pm.test('ETag ada', () => pm.response.to.have.header('ETag'));"
-            ]
-          }
-        }
-      ],
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          },
-          {
-            "key": "Accept",
-            "value": "application/json"
-          }
-        ],
-        "url": {
-          "raw": "{{baseUrl}}/patients",
-          "host": [
-            "{{baseUrl}}"
           ],
-          "path": [
-            "patients"
-          ],
-          "query": []
+          "request": {
+            "method": "GET",
+            "description": "Membaca satu dokter.",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/doctors/{{doctorId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "doctors",
+                "{{doctorId}}"
+              ],
+              "query": []
+            }
+          }
         },
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"medicalRecordNumber\": \"RM-000100\",\n  \"nik\": \"3273010000000100\",\n  \"fullName\": \"Pasien Postman\",\n  \"birthDate\": \"1992-08-17\",\n  \"gender\": \"MALE\",\n  \"phone\": \"+6281200000100\",\n  \"address\": \"Jl. Uji No. 1\"\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        }
-      }
-    },
-    {
-      "name": "Pasien - GET detail",
-      "event": [
         {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "pm.test('status 200', () => pm.response.to.have.status(200));",
-              "pm.collectionVariables.set('etag', pm.response.headers.get('ETag'));"
-            ]
-          }
-        }
-      ],
-      "request": {
-        "method": "GET",
-        "header": [
-          {
-            "key": "Accept",
-            "value": "application/json"
-          }
-        ],
-        "url": {
-          "raw": "{{baseUrl}}/patients/{{patientId}}",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "patients",
-            "{{patientId}}"
-          ],
-          "query": []
-        }
-      }
-    },
-    {
-      "name": "Pasien - PUT ganti seluruh data",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "pm.test('status 200', () => pm.response.to.have.status(200));",
-              "pm.collectionVariables.set('etag', pm.response.headers.get('ETag'));"
-            ]
-          }
-        }
-      ],
-      "request": {
-        "method": "PUT",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          },
-          {
-            "key": "Accept",
-            "value": "application/json"
-          },
-          {
-            "key": "If-Match",
-            "value": "{{etag}}"
-          }
-        ],
-        "url": {
-          "raw": "{{baseUrl}}/patients/{{patientId}}",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "patients",
-            "{{patientId}}"
-          ],
-          "query": []
-        },
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"medicalRecordNumber\": \"RM-000100\",\n  \"nik\": \"3273010000000100\",\n  \"fullName\": \"Pasien Postman Diubah\",\n  \"birthDate\": \"1992-08-17\",\n  \"gender\": \"MALE\",\n  \"phone\": \"+6281200000100\",\n  \"address\": \"Jl. Uji No. 1\"\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        }
-      }
-    },
-    {
-      "name": "Pasien - PATCH telepon",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "pm.test('status 200', () => pm.response.to.have.status(200));",
-              "pm.test('versi 3', () => pm.expect(pm.response.json().version).to.eql(3));"
-            ]
-          }
-        }
-      ],
-      "request": {
-        "method": "PATCH",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          },
-          {
-            "key": "Accept",
-            "value": "application/json"
-          },
-          {
-            "key": "If-Match",
-            "value": "{{etag}}"
-          }
-        ],
-        "url": {
-          "raw": "{{baseUrl}}/patients/{{patientId}}",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "patients",
-            "{{patientId}}"
-          ],
-          "query": []
-        },
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"phone\": \"+6281200000199\"\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        }
-      }
-    },
-    {
-      "name": "Error 412 - ETag lama",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "pm.test('status 412', () => pm.response.to.have.status(412));",
-              "pm.test('code', () => pm.expect(pm.response.json().code).to.eql('VERSION_CONFLICT'));"
-            ]
-          }
-        }
-      ],
-      "request": {
-        "method": "PATCH",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          },
-          {
-            "key": "Accept",
-            "value": "application/json"
-          },
-          {
-            "key": "If-Match",
-            "value": "\"1\""
-          }
-        ],
-        "url": {
-          "raw": "{{baseUrl}}/patients/{{patientId}}",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "patients",
-            "{{patientId}}"
-          ],
-          "query": []
-        },
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"phone\": \"+6281200000188\"\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        }
-      }
-    },
-    {
-      "name": "Error 428 - tanpa If-Match",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "pm.test('status 428', () => pm.response.to.have.status(428));"
-            ]
-          }
-        }
-      ],
-      "request": {
-        "method": "PATCH",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          },
-          {
-            "key": "Accept",
-            "value": "application/json"
-          }
-        ],
-        "url": {
-          "raw": "{{baseUrl}}/patients/{{patientId}}",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "patients",
-            "{{patientId}}"
-          ],
-          "query": []
-        },
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"phone\": \"+6281200000188\"\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        }
-      }
-    },
-    {
-      "name": "Error 400 - NIK tidak valid",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "pm.test('status 400', () => pm.response.to.have.status(400));",
-              "pm.test('code', () => pm.expect(pm.response.json().code).to.eql('VALIDATION_ERROR'));"
-            ]
-          }
-        }
-      ],
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          },
-          {
-            "key": "Accept",
-            "value": "application/json"
-          }
-        ],
-        "url": {
-          "raw": "{{baseUrl}}/patients",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "patients"
-          ],
-          "query": []
-        },
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"medicalRecordNumber\": \"RM-000100\",\n  \"nik\": \"123\",\n  \"fullName\": \"Pasien Postman\",\n  \"birthDate\": \"1992-08-17\",\n  \"gender\": \"MALE\",\n  \"phone\": \"+6281200000100\",\n  \"address\": \"Jl. Uji No. 1\"\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        }
-      }
-    },
-    {
-      "name": "Error 409 - NIK duplikat",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "pm.test('status 409', () => pm.response.to.have.status(409));",
-              "pm.test('code', () => pm.expect(pm.response.json().code).to.eql('MEDICAL_RECORD_NUMBER_EXISTS'));"
-            ]
-          }
-        }
-      ],
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          },
-          {
-            "key": "Accept",
-            "value": "application/json"
-          }
-        ],
-        "url": {
-          "raw": "{{baseUrl}}/patients",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "patients"
-          ],
-          "query": []
-        },
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"medicalRecordNumber\": \"RM-000100\",\n  \"nik\": \"3273010000000100\",\n  \"fullName\": \"Pasien Postman\",\n  \"birthDate\": \"1992-08-17\",\n  \"gender\": \"MALE\",\n  \"phone\": \"+6281200000100\",\n  \"address\": \"Jl. Uji No. 1\"\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        }
-      }
-    },
-    {
-      "name": "Error 404 - pasien tidak ada",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "pm.test('status 404', () => pm.response.to.have.status(404));"
-            ]
-          }
-        }
-      ],
-      "request": {
-        "method": "GET",
-        "header": [
-          {
-            "key": "Accept",
-            "value": "application/json"
-          }
-        ],
-        "url": {
-          "raw": "{{baseUrl}}/patients/99999",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "patients",
-            "99999"
-          ],
-          "query": []
-        }
-      }
-    },
-    {
-      "name": "Pasien - DELETE",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "pm.test('status 204', () => pm.response.to.have.status(204));"
-            ]
-          }
-        }
-      ],
-      "request": {
-        "method": "DELETE",
-        "header": [
-          {
-            "key": "Accept",
-            "value": "application/json"
-          }
-        ],
-        "url": {
-          "raw": "{{baseUrl}}/patients/{{patientId}}",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "patients",
-            "{{patientId}}"
-          ],
-          "query": []
-        }
-      }
-    },
-    {
-      "name": "Dokter - GET daftar",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "pm.test('status 200', () => pm.response.to.have.status(200));"
-            ]
-          }
-        }
-      ],
-      "request": {
-        "method": "GET",
-        "header": [
-          {
-            "key": "Accept",
-            "value": "application/json"
-          }
-        ],
-        "url": {
-          "raw": "{{baseUrl}}/doctors?isActive=true",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "doctors"
-          ],
-          "query": [
+          "name": "Ganti seluruh data dokter",
+          "event": [
             {
-              "key": "isActive",
-              "value": "true"
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Waktu respons di bawah 1 detik', () => pm.expect(pm.response.responseTime).to.be.below(1000));",
+                  "pm.test('Content-Type JSON', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));",
+                  "pm.test('Kuota berubah', () => pm.expect(pm.response.json().dailyQuota).to.eql(25));"
+                ]
+              }
             }
-          ]
-        }
-      }
-    },
-    {
-      "name": "Janji temu - POST pesan",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "pm.test('status 201', () => pm.response.to.have.status(201));",
-              "pm.collectionVariables.set('appointmentId', pm.response.json().id);"
-            ]
-          }
-        }
-      ],
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          },
-          {
-            "key": "Accept",
-            "value": "application/json"
-          }
-        ],
-        "url": {
-          "raw": "{{baseUrl}}/appointments",
-          "host": [
-            "{{baseUrl}}"
           ],
-          "path": [
-            "appointments"
-          ],
-          "query": []
+          "request": {
+            "method": "PUT",
+            "description": "Mengganti data dokter, termasuk kuota harian.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/doctors/{{doctorId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "doctors",
+                "{{doctorId}}"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"licenseNumber\": \"SIP-2024-0100\",\n  \"fullName\": \"dr. Rina Kartika\",\n  \"specialty\": \"UMUM\",\n  \"dailyQuota\": 25\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
         },
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"patientId\": 3,\n  \"doctorId\": 3,\n  \"appointmentDate\": \"2035-06-15\",\n  \"complaint\": \"Anak demam dua hari\"\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        }
-      }
-    },
-    {
-      "name": "Janji temu - POST pesan kuota terakhir",
-      "event": [
         {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "pm.test('status 201', () => pm.response.to.have.status(201));"
-            ]
-          }
-        }
-      ],
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          },
-          {
-            "key": "Accept",
-            "value": "application/json"
-          }
-        ],
-        "url": {
-          "raw": "{{baseUrl}}/appointments",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "appointments"
-          ],
-          "query": []
-        },
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"patientId\": 4,\n  \"doctorId\": 3,\n  \"appointmentDate\": \"2035-06-15\",\n  \"complaint\": \"Anak batuk pilek\"\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        }
-      }
-    },
-    {
-      "name": "Error 409 - kuota penuh (rollback)",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "pm.test('status 409', () => pm.response.to.have.status(409));",
-              "pm.test('code', () => pm.expect(pm.response.json().code).to.eql('QUOTA_FULL'));"
-            ]
-          }
-        }
-      ],
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          },
-          {
-            "key": "Accept",
-            "value": "application/json"
-          }
-        ],
-        "url": {
-          "raw": "{{baseUrl}}/appointments",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "appointments"
-          ],
-          "query": []
-        },
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"patientId\": 5,\n  \"doctorId\": 3,\n  \"appointmentDate\": \"2035-06-15\",\n  \"complaint\": \"Anak sakit perut\"\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        }
-      }
-    },
-    {
-      "name": "Janji temu - PATCH check-in",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "pm.test('status 200', () => pm.response.to.have.status(200));"
-            ]
-          }
-        }
-      ],
-      "request": {
-        "method": "PATCH",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          },
-          {
-            "key": "Accept",
-            "value": "application/json"
-          }
-        ],
-        "url": {
-          "raw": "{{baseUrl}}/appointments/{{appointmentId}}",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "appointments",
-            "{{appointmentId}}"
-          ],
-          "query": []
-        },
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"status\": \"CHECKED_IN\"\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        }
-      }
-    },
-    {
-      "name": "Janji temu - GET filter status",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "pm.test('status 200', () => pm.response.to.have.status(200));"
-            ]
-          }
-        }
-      ],
-      "request": {
-        "method": "GET",
-        "header": [
-          {
-            "key": "Accept",
-            "value": "application/json"
-          }
-        ],
-        "url": {
-          "raw": "{{baseUrl}}/appointments?status=CHECKED_IN",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "appointments"
-          ],
-          "query": [
+          "name": "Hapus dokter",
+          "event": [
             {
-              "key": "status",
-              "value": "CHECKED_IN"
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 204', () => pm.response.to.have.status(204));",
+                  "pm.test('Waktu respons di bawah 1 detik', () => pm.expect(pm.response.responseTime).to.be.below(1000));"
+                ]
+              }
             }
-          ]
+          ],
+          "request": {
+            "method": "DELETE",
+            "description": "Menghapus dokter tanpa riwayat janji temu.",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/doctors/{{doctorId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "doctors",
+                "{{doctorId}}"
+              ],
+              "query": []
+            }
+          }
         }
-      }
+      ]
+    },
+    {
+      "name": "3. Janji Temu - Transaksi",
+      "description": "Pemesanan berjalan dalam transaksi database. Dokter id 3 memiliki kuota 2 pasien per hari: pesanan ketiga di-ROLLBACK.",
+      "item": [
+        {
+          "name": "Pesan janji temu (COMMIT)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Waktu respons di bawah 1 detik', () => pm.expect(pm.response.responseTime).to.be.below(1000));",
+                  "pm.test('Content-Type JSON', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));",
+                  "pm.test('Antrean nomor 1', () => pm.expect(pm.response.json().queueNumber).to.eql(1));",
+                  "pm.collectionVariables.set('appointmentId', pm.response.json().id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "description": "Pesanan pertama. Server menentukan nomor antrean.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/appointments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "appointments"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"patientId\": 1,\n  \"doctorId\": 3,\n  \"appointmentDate\": \"2035-06-15\",\n  \"complaint\": \"Anak demam dua hari\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Pesan janji temu kedua (COMMIT)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Waktu respons di bawah 1 detik', () => pm.expect(pm.response.responseTime).to.be.below(1000));",
+                  "pm.test('Content-Type JSON', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));",
+                  "pm.test('Antrean nomor 2', () => pm.expect(pm.response.json().queueNumber).to.eql(2));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "description": "Pesanan kedua mengisi kuota terakhir.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/appointments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "appointments"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"patientId\": 2,\n  \"doctorId\": 3,\n  \"appointmentDate\": \"2035-06-15\",\n  \"complaint\": \"Anak batuk pilek\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Kuota penuh (ROLLBACK)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 409', () => pm.response.to.have.status(409));",
+                  "pm.test('Format Problem Details', () => {",
+                  "  pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json');",
+                  "  pm.expect(pm.response.json()).to.include.keys('type', 'title', 'status', 'detail', 'instance', 'code');",
+                  "});",
+                  "pm.test('Kode error QUOTA_FULL', () => pm.expect(pm.response.json().code).to.eql('QUOTA_FULL'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "description": "Pesanan ketiga sempat di-insert, lalu dibatalkan karena kuota terlampaui.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/appointments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "appointments"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"patientId\": 3,\n  \"doctorId\": 3,\n  \"appointmentDate\": \"2035-06-15\",\n  \"complaint\": \"Anak sakit perut\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Bukti rollback: hanya 2 janji",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Waktu respons di bawah 1 detik', () => pm.expect(pm.response.responseTime).to.be.below(1000));",
+                  "pm.test('Content-Type JSON', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));",
+                  "pm.test('Total 2 janji', () => pm.expect(pm.response.json().meta.totalItems).to.eql(2));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "description": "Membuktikan pesanan ketiga tidak tersimpan.",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/appointments?doctorId=3&dateFrom=2035-06-15&dateTo=2035-06-15&sortBy=queueNumber&sortOrder=asc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "appointments"
+              ],
+              "query": [
+                {
+                  "key": "doctorId",
+                  "value": "3"
+                },
+                {
+                  "key": "dateFrom",
+                  "value": "2035-06-15"
+                },
+                {
+                  "key": "dateTo",
+                  "value": "2035-06-15"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "queueNumber"
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "asc"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Pasien hadir (CHECKED_IN)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Waktu respons di bawah 1 detik', () => pm.expect(pm.response.responseTime).to.be.below(1000));",
+                  "pm.test('Content-Type JSON', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));",
+                  "pm.test('Status berubah', () => pm.expect(pm.response.json().status).to.eql('CHECKED_IN'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "description": "Mengubah status janji temu.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/appointments/{{appointmentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "appointments",
+                "{{appointmentId}}"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"CHECKED_IN\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Transisi status tidak sah",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 409', () => pm.response.to.have.status(409));",
+                  "pm.test('Format Problem Details', () => {",
+                  "  pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json');",
+                  "  pm.expect(pm.response.json()).to.include.keys('type', 'title', 'status', 'detail', 'instance', 'code');",
+                  "});",
+                  "pm.test('Kode error INVALID_STATUS_TRANSITION', () => pm.expect(pm.response.json().code).to.eql('INVALID_STATUS_TRANSITION'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "description": "SCHEDULED tidak boleh langsung menjadi COMPLETED.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/appointments/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "appointments",
+                "1"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"COMPLETED\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Error 400 - Validasi Gagal",
+      "description": "Input tidak valid ditolak dengan format Problem Details.",
+      "item": [
+        {
+          "name": "Banyak field tidak valid",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 400', () => pm.response.to.have.status(400));",
+                  "pm.test('Format Problem Details', () => {",
+                  "  pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json');",
+                  "  pm.expect(pm.response.json()).to.include.keys('type', 'title', 'status', 'detail', 'instance', 'code');",
+                  "});",
+                  "pm.test('Kode error VALIDATION_ERROR', () => pm.expect(pm.response.json().code).to.eql('VALIDATION_ERROR'));",
+                  "pm.test('Daftar error per field', () => pm.expect(pm.response.json().errors).to.be.an('array').that.is.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "description": "Respons menyebutkan kesalahan untuk tiap field.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/patients",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "patients"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"medicalRecordNumber\": \"ABC\",\n  \"nik\": \"123\",\n  \"fullName\": \"A\",\n  \"birthDate\": \"12-03-1990\",\n  \"gender\": \"OTHER\",\n  \"phone\": \"abc\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "JSON rusak",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 400', () => pm.response.to.have.status(400));",
+                  "pm.test('Format Problem Details', () => {",
+                  "  pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json');",
+                  "  pm.expect(pm.response.json()).to.include.keys('type', 'title', 'status', 'detail', 'instance', 'code');",
+                  "});",
+                  "pm.test('Kode error INVALID_JSON', () => pm.expect(pm.response.json().code).to.eql('INVALID_JSON'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "description": "Body bukan JSON yang valid menghasilkan 400, bukan 500.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/patients",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "patients"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nik\":",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "ID bukan angka",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 400', () => pm.response.to.have.status(400));",
+                  "pm.test('Format Problem Details', () => {",
+                  "  pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json');",
+                  "  pm.expect(pm.response.json()).to.include.keys('type', 'title', 'status', 'detail', 'instance', 'code');",
+                  "});",
+                  "pm.test('Kode error INVALID_ID', () => pm.expect(pm.response.json().code).to.eql('INVALID_ID'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "description": "ID harus bilangan bulat positif.",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/patients/abc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "patients",
+                "abc"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "Parameter query di luar batas",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 400', () => pm.response.to.have.status(400));",
+                  "pm.test('Format Problem Details', () => {",
+                  "  pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json');",
+                  "  pm.expect(pm.response.json()).to.include.keys('type', 'title', 'status', 'detail', 'instance', 'code');",
+                  "});",
+                  "pm.test('Kode error VALIDATION_ERROR', () => pm.expect(pm.response.json().code).to.eql('VALIDATION_ERROR'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "description": "limit maksimal 100 dan sortBy dibatasi daftar putih.",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/patients?limit=101&sortBy=password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "patients"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "101"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "password"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Error 404 - Tidak Ditemukan",
+      "description": "Resource yang diminta tidak ada.",
+      "item": [
+        {
+          "name": "Pasien tidak ada",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 404', () => pm.response.to.have.status(404));",
+                  "pm.test('Format Problem Details', () => {",
+                  "  pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json');",
+                  "  pm.expect(pm.response.json()).to.include.keys('type', 'title', 'status', 'detail', 'instance', 'code');",
+                  "});",
+                  "pm.test('Kode error PATIENT_NOT_FOUND', () => pm.expect(pm.response.json().code).to.eql('PATIENT_NOT_FOUND'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "description": "ID tidak terdaftar.",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/patients/99999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "patients",
+                "99999"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "Dokter tidak ada",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 404', () => pm.response.to.have.status(404));",
+                  "pm.test('Format Problem Details', () => {",
+                  "  pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json');",
+                  "  pm.expect(pm.response.json()).to.include.keys('type', 'title', 'status', 'detail', 'instance', 'code');",
+                  "});",
+                  "pm.test('Kode error DOCTOR_NOT_FOUND', () => pm.expect(pm.response.json().code).to.eql('DOCTOR_NOT_FOUND'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "description": "ID tidak terdaftar.",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/doctors/99999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "doctors",
+                "99999"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "Janji temu tidak ada",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 404', () => pm.response.to.have.status(404));",
+                  "pm.test('Format Problem Details', () => {",
+                  "  pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json');",
+                  "  pm.expect(pm.response.json()).to.include.keys('type', 'title', 'status', 'detail', 'instance', 'code');",
+                  "});",
+                  "pm.test('Kode error APPOINTMENT_NOT_FOUND', () => pm.expect(pm.response.json().code).to.eql('APPOINTMENT_NOT_FOUND'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "description": "ID tidak terdaftar.",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/appointments/99999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "appointments",
+                "99999"
+              ],
+              "query": []
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Error 409 - Konflik Data",
+      "description": "Permintaan bentrok dengan data yang sudah ada.",
+      "item": [
+        {
+          "name": "Nomor rekam medis duplikat",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 409', () => pm.response.to.have.status(409));",
+                  "pm.test('Format Problem Details', () => {",
+                  "  pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json');",
+                  "  pm.expect(pm.response.json()).to.include.keys('type', 'title', 'status', 'detail', 'instance', 'code');",
+                  "});",
+                  "pm.test('Kode error MEDICAL_RECORD_NUMBER_EXISTS', () => pm.expect(pm.response.json().code).to.eql('MEDICAL_RECORD_NUMBER_EXISTS'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "description": "Constraint UNIQUE pada medical_record_number.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/patients",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "patients"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"medicalRecordNumber\": \"RM-000001\",\n  \"nik\": \"3273010000000100\",\n  \"fullName\": \"Budi Hartono\",\n  \"birthDate\": \"1992-08-17\",\n  \"gender\": \"MALE\",\n  \"phone\": \"+6281200000100\",\n  \"address\": \"Jl. Riau No. 7, Bandung\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "NIK duplikat",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 409', () => pm.response.to.have.status(409));",
+                  "pm.test('Format Problem Details', () => {",
+                  "  pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json');",
+                  "  pm.expect(pm.response.json()).to.include.keys('type', 'title', 'status', 'detail', 'instance', 'code');",
+                  "});",
+                  "pm.test('Kode error NIK_EXISTS', () => pm.expect(pm.response.json().code).to.eql('NIK_EXISTS'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "description": "Constraint UNIQUE pada nik.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/patients",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "patients"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"medicalRecordNumber\": \"RM-000100\",\n  \"nik\": \"3273011203900001\",\n  \"fullName\": \"Budi Hartono\",\n  \"birthDate\": \"1992-08-17\",\n  \"gender\": \"MALE\",\n  \"phone\": \"+6281200000100\",\n  \"address\": \"Jl. Riau No. 7, Bandung\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Hapus pasien yang punya janji",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 409', () => pm.response.to.have.status(409));",
+                  "pm.test('Format Problem Details', () => {",
+                  "  pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json');",
+                  "  pm.expect(pm.response.json()).to.include.keys('type', 'title', 'status', 'detail', 'instance', 'code');",
+                  "});",
+                  "pm.test('Kode error PATIENT_HAS_APPOINTMENTS', () => pm.expect(pm.response.json().code).to.eql('PATIENT_HAS_APPOINTMENTS'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "description": "Foreign key RESTRICT mencegah riwayat terlepas.",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/patients/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "patients",
+                "1"
+              ],
+              "query": []
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. ETag dan Konkurensi",
+      "description": "If-Match mencegah lost update; If-None-Match menghemat transfer data.",
+      "item": [
+        {
+          "name": "Baca ETag pasien",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Waktu respons di bawah 1 detik', () => pm.expect(pm.response.responseTime).to.be.below(1000));",
+                  "pm.test('Content-Type JSON', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));",
+                  "pm.collectionVariables.set('etag5', pm.response.headers.get('ETag'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "description": "Mengambil ETag terbaru.",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/patients/5",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "patients",
+                "5"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "Data belum berubah (304)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 304', () => pm.response.to.have.status(304));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "description": "ETag masih cocok, server menjawab tanpa body.",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "If-None-Match",
+                "value": "{{etag5}}"
+              },
+              {
+                "key": "Cache-Control",
+                "value": "max-age=0"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/patients/5",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "patients",
+                "5"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "ETag lama (412)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 412', () => pm.response.to.have.status(412));",
+                  "pm.test('Format Problem Details', () => {",
+                  "  pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json');",
+                  "  pm.expect(pm.response.json()).to.include.keys('type', 'title', 'status', 'detail', 'instance', 'code');",
+                  "});",
+                  "pm.test('Kode error VERSION_CONFLICT', () => pm.expect(pm.response.json().code).to.eql('VERSION_CONFLICT'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "description": "Versi di klien berbeda dari server, perubahan ditolak.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "If-Match",
+                "value": "\"99\""
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/patients/5",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "patients",
+                "5"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"+6281200000155\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Tanpa If-Match (428)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 428', () => pm.response.to.have.status(428));",
+                  "pm.test('Format Problem Details', () => {",
+                  "  pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json');",
+                  "  pm.expect(pm.response.json()).to.include.keys('type', 'title', 'status', 'detail', 'instance', 'code');",
+                  "});",
+                  "pm.test('Kode error PRECONDITION_REQUIRED', () => pm.expect(pm.response.json().code).to.eql('PRECONDITION_REQUIRED'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "description": "Header If-Match wajib untuk perubahan data pasien.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/patients/5",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "patients",
+                "5"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"+6281200000155\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   ]
 }

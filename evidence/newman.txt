@@ -2,97 +2,224 @@ newman
 
 Klinik REST API
 
-→ Pasien - GET daftar + filter
-  GET http://localhost:3000/api/v1/patients?gender=FEMALE&sortBy=fullName&sortOrder=asc&page=1&limit=2 [200 OK, 902B, 35ms]
-  ✓  status 200
-  ✓  meta pagination
+❏ 1. Pasien - CRUD
+↳ Daftar pasien (filter, sorting, pagination)
+  GET http://localhost:3000/api/v1/patients?gender=FEMALE&sortBy=fullName&sortOrder=asc&page=1&limit=2 [200 OK, 902B, 47ms]
+  ✓  Status 200
+  ✓  Waktu respons di bawah 1 detik
+  ✓  Content-Type JSON
+  ✓  Meta pagination sesuai
 
-→ Pasien - POST tambah
-  POST http://localhost:3000/api/v1/patients [201 Created, 517B, 9ms]
-  ✓  status 201
-  ✓  ETag ada
+↳ Tambah pasien
+  POST http://localhost:3000/api/v1/patients [201 Created, 525B, 10ms]
+  ✓  Status 201
+  ✓  Waktu respons di bawah 1 detik
+  ✓  Content-Type JSON
+  ✓  Header Location dan ETag ada
 
-→ Pasien - GET detail
-  GET http://localhost:3000/api/v1/patients/6 [200 OK, 516B, 3ms]
-  ✓  status 200
+↳ Detail pasien
+  GET http://localhost:3000/api/v1/patients/6 [200 OK, 524B, 4ms]
+  ✓  Status 200
+  ✓  Waktu respons di bawah 1 detik
+  ✓  Content-Type JSON
+  ✓  Data sesuai
 
-→ Pasien - PUT ganti seluruh data
-  PUT http://localhost:3000/api/v1/patients/6 [200 OK, 489B, 6ms]
-  ✓  status 200
+↳ Ganti seluruh data pasien
+  PUT http://localhost:3000/api/v1/patients/6 [200 OK, 498B, 8ms]
+  ✓  Status 200
+  ✓  Waktu respons di bawah 1 detik
+  ✓  Content-Type JSON
+  ✓  Versi naik menjadi 2
 
-→ Pasien - PATCH telepon
-  PATCH http://localhost:3000/api/v1/patients/6 [200 OK, 489B, 5ms]
-  ✓  status 200
-  ✓  versi 3
+↳ Ubah sebagian data pasien
+  PATCH http://localhost:3000/api/v1/patients/6 [200 OK, 498B, 5ms]
+  ✓  Status 200
+  ✓  Waktu respons di bawah 1 detik
+  ✓  Content-Type JSON
+  ✓  Hanya telepon berubah
 
-→ Error 412 - ETag lama
-  PATCH http://localhost:3000/api/v1/patients/6 [412 Precondition Failed, 516B, 4ms]
-  ✓  status 412
-  ✓  code
+↳ Hapus pasien
+  DELETE http://localhost:3000/api/v1/patients/6 [204 No Content, 134B, 4ms]
+  ✓  Status 204
+  ✓  Waktu respons di bawah 1 detik
+  ✓  Body kosong
 
-→ Error 428 - tanpa If-Match
-  PATCH http://localhost:3000/api/v1/patients/6 [428 Precondition Required, 525B, 3ms]
-  ✓  status 428
+❏ 2. Dokter - CRUD
+↳ Daftar dokter aktif
+  GET http://localhost:3000/api/v1/doctors?isActive=true&sortBy=fullName&sortOrder=asc [200 OK, 988B, 4ms]
+  ✓  Status 200
+  ✓  Waktu respons di bawah 1 detik
+  ✓  Content-Type JSON
+  ✓  Boleh di-cache 60 detik
 
-→ Error 400 - NIK tidak valid
-  POST http://localhost:3000/api/v1/patients [400 Bad Request, 534B, 3ms]
-  ✓  status 400
-  ✓  code
+↳ Tambah dokter
+  POST http://localhost:3000/api/v1/doctors [201 Created, 469B, 5ms]
+  ✓  Status 201
+  ✓  Waktu respons di bawah 1 detik
+  ✓  Content-Type JSON
 
-→ Error 409 - NIK duplikat
-  POST http://localhost:3000/api/v1/patients [409 Conflict, 475B, 7ms]
-  ✓  status 409
-  ✓  code
+↳ Detail dokter
+  GET http://localhost:3000/api/v1/doctors/5 [200 OK, 470B, 6ms]
+  ✓  Status 200
+  ✓  Waktu respons di bawah 1 detik
+  ✓  Content-Type JSON
 
-→ Error 404 - pasien tidak ada
+↳ Ganti seluruh data dokter
+  PUT http://localhost:3000/api/v1/doctors/5 [200 OK, 435B, 7ms]
+  ✓  Status 200
+  ✓  Waktu respons di bawah 1 detik
+  ✓  Content-Type JSON
+  ✓  Kuota berubah
+
+↳ Hapus dokter
+  DELETE http://localhost:3000/api/v1/doctors/5 [204 No Content, 134B, 2ms]
+  ✓  Status 204
+  ✓  Waktu respons di bawah 1 detik
+
+❏ 3. Janji Temu - Transaksi
+↳ Pesan janji temu (COMMIT)
+  POST http://localhost:3000/api/v1/appointments [201 Created, 490B, 9ms]
+  ✓  Status 201
+  ✓  Waktu respons di bawah 1 detik
+  ✓  Content-Type JSON
+  ✓  Antrean nomor 1
+
+↳ Pesan janji temu kedua (COMMIT)
+  POST http://localhost:3000/api/v1/appointments [201 Created, 487B, 7ms]
+  ✓  Status 201
+  ✓  Waktu respons di bawah 1 detik
+  ✓  Content-Type JSON
+  ✓  Antrean nomor 2
+
+↳ Kuota penuh (ROLLBACK)
+  POST http://localhost:3000/api/v1/appointments [409 Conflict, 461B, 8ms]
+  ✓  Status 409
+  ✓  Format Problem Details
+  ✓  Kode error QUOTA_FULL
+
+↳ Bukti rollback: hanya 2 janji
+  GET http://localhost:3000/api/v1/appointments?doctorId=3&dateFrom=2035-06-15&dateTo=2035-06-15&sortBy=queueNumber&sortOrder=asc [200 OK, 800B, 3ms]
+  ✓  Status 200
+  ✓  Waktu respons di bawah 1 detik
+  ✓  Content-Type JSON
+  ✓  Total 2 janji
+
+↳ Pasien hadir (CHECKED_IN)
+  PATCH http://localhost:3000/api/v1/appointments/4 [200 OK, 452B, 5ms]
+  ✓  Status 200
+  ✓  Waktu respons di bawah 1 detik
+  ✓  Content-Type JSON
+  ✓  Status berubah
+
+↳ Transisi status tidak sah
+  PATCH http://localhost:3000/api/v1/appointments/1 [409 Conflict, 495B, 3ms]
+  ✓  Status 409
+  ✓  Format Problem Details
+  ✓  Kode error INVALID_STATUS_TRANSITION
+
+❏ 4. Error 400 - Validasi Gagal
+↳ Banyak field tidak valid
+  POST http://localhost:3000/api/v1/patients [400 Bad Request, 1.03kB, 2ms]
+  ✓  Status 400
+  ✓  Format Problem Details
+  ✓  Kode error VALIDATION_ERROR
+  ✓  Daftar error per field
+
+↳ JSON rusak
+  POST http://localhost:3000/api/v1/patients [400 Bad Request, 457B, 3ms]
+  ✓  Status 400
+  ✓  Format Problem Details
+  ✓  Kode error INVALID_JSON
+
+↳ ID bukan angka
+  GET http://localhost:3000/api/v1/patients/abc [400 Bad Request, 495B, 2ms]
+  ✓  Status 400
+  ✓  Format Problem Details
+  ✓  Kode error INVALID_ID
+
+↳ Parameter query di luar batas
+  GET http://localhost:3000/api/v1/patients?limit=101&sortBy=password [400 Bad Request, 711B, 2ms]
+  ✓  Status 400
+  ✓  Format Problem Details
+  ✓  Kode error VALIDATION_ERROR
+
+❏ 5. Error 404 - Tidak Ditemukan
+↳ Pasien tidak ada
   GET http://localhost:3000/api/v1/patients/99999 [404 Not Found, 507B, 3ms]
-  ✓  status 404
+  ✓  Status 404
+  ✓  Format Problem Details
+  ✓  Kode error PATIENT_NOT_FOUND
 
-→ Pasien - DELETE
-  DELETE http://localhost:3000/api/v1/patients/6 [204 No Content, 134B, 6ms]
-  ✓  status 204
+↳ Dokter tidak ada
+  GET http://localhost:3000/api/v1/doctors/99999 [404 Not Found, 505B, 3ms]
+  ✓  Status 404
+  ✓  Format Problem Details
+  ✓  Kode error DOCTOR_NOT_FOUND
 
-→ Dokter - GET daftar
-  GET http://localhost:3000/api/v1/doctors?isActive=true [200 OK, 988B, 4ms]
-  ✓  status 200
+↳ Janji temu tidak ada
+  GET http://localhost:3000/api/v1/appointments/99999 [404 Not Found, 514B, 2ms]
+  ✓  Status 404
+  ✓  Format Problem Details
+  ✓  Kode error APPOINTMENT_NOT_FOUND
 
-→ Janji temu - POST pesan
-  POST http://localhost:3000/api/v1/appointments [201 Created, 490B, 8ms]
-  ✓  status 201
+❏ 6. Error 409 - Konflik Data
+↳ Nomor rekam medis duplikat
+  POST http://localhost:3000/api/v1/patients [409 Conflict, 475B, 7ms]
+  ✓  Status 409
+  ✓  Format Problem Details
+  ✓  Kode error MEDICAL_RECORD_NUMBER_EXISTS
 
-→ Janji temu - POST pesan kuota terakhir
-  POST http://localhost:3000/api/v1/appointments [201 Created, 487B, 8ms]
-  ✓  status 201
+↳ NIK duplikat
+  POST http://localhost:3000/api/v1/patients [409 Conflict, 425B, 5ms]
+  ✓  Status 409
+  ✓  Format Problem Details
+  ✓  Kode error NIK_EXISTS
 
-→ Error 409 - kuota penuh (rollback)
-  POST http://localhost:3000/api/v1/appointments [409 Conflict, 461B, 6ms]
-  ✓  status 409
-  ✓  code
+↳ Hapus pasien yang punya janji
+  DELETE http://localhost:3000/api/v1/patients/1 [409 Conflict, 503B, 2ms]
+  ✓  Status 409
+  ✓  Format Problem Details
+  ✓  Kode error PATIENT_HAS_APPOINTMENTS
 
-→ Janji temu - PATCH check-in
-  PATCH http://localhost:3000/api/v1/appointments/4 [200 OK, 452B, 6ms]
-  ✓  status 200
+❏ 7. ETag dan Konkurensi
+↳ Baca ETag pasien
+  GET http://localhost:3000/api/v1/patients/5 [200 OK, 504B, 3ms]
+  ✓  Status 200
+  ✓  Waktu respons di bawah 1 detik
+  ✓  Content-Type JSON
 
-→ Janji temu - GET filter status
-  GET http://localhost:3000/api/v1/appointments?status=CHECKED_IN [200 OK, 588B, 2ms]
-  ✓  status 200
+↳ Data belum berubah (304)
+  GET http://localhost:3000/api/v1/patients/5 [304 Not Modified, 181B, 3ms]
+  ✓  Status 304
+
+↳ ETag lama (412)
+  PATCH http://localhost:3000/api/v1/patients/5 [412 Precondition Failed, 516B, 4ms]
+  ✓  Status 412
+  ✓  Format Problem Details
+  ✓  Kode error VERSION_CONFLICT
+
+↳ Tanpa If-Match (428)
+  PATCH http://localhost:3000/api/v1/patients/5 [428 Precondition Required, 525B, 3ms]
+  ✓  Status 428
+  ✓  Format Problem Details
+  ✓  Kode error PRECONDITION_REQUIRED
 
 ┌─────────────────────────┬─────────────────┬─────────────────┐
 │                         │        executed │          failed │
 ├─────────────────────────┼─────────────────┼─────────────────┤
 │              iterations │               1 │               0 │
 ├─────────────────────────┼─────────────────┼─────────────────┤
-│                requests │              17 │               0 │
+│                requests │              31 │               0 │
 ├─────────────────────────┼─────────────────┼─────────────────┤
-│            test-scripts │              17 │               0 │
+│            test-scripts │              31 │               0 │
 ├─────────────────────────┼─────────────────┼─────────────────┤
 │      prerequest-scripts │               0 │               0 │
 ├─────────────────────────┼─────────────────┼─────────────────┤
-│              assertions │              24 │               0 │
+│              assertions │             102 │               0 │
 ├─────────────────────────┴─────────────────┴─────────────────┤
-│ total run duration: 335ms                                   │
+│ total run duration: 635ms                                   │
 ├─────────────────────────────────────────────────────────────┤
-│ total data received: 4.9kB (approx)                         │
+│ total data received: 8.48kB (approx)                        │
 ├─────────────────────────────────────────────────────────────┤
-│ average response time: 6ms [min: 2ms, max: 35ms, s.d.: 7ms] │
+│ average response time: 5ms [min: 2ms, max: 47ms, s.d.: 7ms] │
 └─────────────────────────────────────────────────────────────┘

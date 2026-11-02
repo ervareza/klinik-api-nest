@@ -1,0 +1,54 @@
+klinik-api-nest/
+├── README.md
+├── openapi.yaml
+├── package.json
+├── postman
+│   └── klinik-api.postman_collection.json
+├── src
+│   ├── app.module.ts
+│   ├── app.setup.ts
+│   ├── appointments
+│   │   ├── appointment.entity.ts
+│   │   ├── appointments.controller.ts
+│   │   ├── appointments.module.ts
+│   │   ├── appointments.repository.ts
+│   │   ├── appointments.service.ts
+│   │   └── dto
+│   │       └── appointment.dto.ts
+│   ├── common
+│   │   ├── etag.util.ts
+│   │   ├── id-param.pipe.ts
+│   │   ├── pagination.ts
+│   │   ├── problem-details.dto.ts
+│   │   ├── problem-details.filter.ts
+│   │   └── problem.exception.ts
+│   ├── database
+│   │   ├── data-source.ts
+│   │   ├── migrations
+│   │   │   ├── 1790000000000-CreatePatientsAndDoctors.ts
+│   │   │   └── 1790000100000-CreateAppointments.ts
+│   │   └── seed.ts
+│   ├── doctors
+│   │   ├── doctor.entity.ts
+│   │   ├── doctors.controller.ts
+│   │   ├── doctors.module.ts
+│   │   ├── doctors.repository.ts
+│   │   ├── doctors.service.ts
+│   │   └── dto
+│   │       └── doctor.dto.ts
+│   ├── main.ts
+│   ├── openapi-export.ts
+│   └── patients
+│       ├── dto
+│       │   └── patient.dto.ts
+│       ├── patient.entity.ts
+│       ├── patients.controller.ts
+│       ├── patients.module.ts
+│       ├── patients.repository.ts
+│       └── patients.service.ts
+├── test
+│   ├── e2e
+│   │   └── api.e2e.spec.ts
+│   └── integration
+│       └── database.integration.spec.ts
+└── tsconfig.json

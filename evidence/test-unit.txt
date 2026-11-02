@@ -1,6 +1,13 @@
-PASS src/common/id-param.pipe.spec.ts (6.662 s)
+PASS src/common/etag.util.spec.ts (6.328 s)
+  etag.util
+    ✓ [UNIT-03] membentuk ETag dari versi (17 ms)
+    ✓ [UNIT-04] If-Match kosong menghasilkan 428 (1 ms)
+    ✓ [UNIT-05] If-Match lama menghasilkan 412
+    ✓ [UNIT-06] If-Match cocok lolos (1 ms)
+
+PASS src/common/id-param.pipe.spec.ts (6.324 s)
   IdParamPipe
-    ✓ [UNIT-01] menerima bilangan bulat positif (9 ms)
+    ✓ [UNIT-01] menerima bilangan bulat positif (11 ms)
     ✓ [UNIT-02] menolak ID tidak valid: "abc" (12 ms)
     ✓ [UNIT-02] menolak ID tidak valid: "0" (1 ms)
     ✓ [UNIT-02] menolak ID tidak valid: "-1" (1 ms)
@@ -8,50 +15,43 @@ PASS src/common/id-param.pipe.spec.ts (6.662 s)
     ✓ [UNIT-02] menolak ID tidak valid: "" (1 ms)
     ✓ [UNIT-02] menolak ID tidak valid: "2147483648" (1 ms)
 
-PASS src/common/etag.util.spec.ts (6.712 s)
-  etag.util
-    ✓ [UNIT-03] membentuk ETag dari versi (11 ms)
-    ✓ [UNIT-04] If-Match kosong menghasilkan 428 (1 ms)
-    ✓ [UNIT-05] If-Match lama menghasilkan 412 (1 ms)
-    ✓ [UNIT-06] If-Match cocok lolos (1 ms)
-
-PASS src/common/problem-details.filter.spec.ts (7.302 s)
+PASS src/common/problem-details.filter.spec.ts (6.998 s)
   toProblem
     ✓ [UNIT-10] unique violation menjadi 409 dengan kode domain (8 ms)
     ✓ [UNIT-11] foreign key violation menjadi 409 (1 ms)
-    ✓ [UNIT-12] not null violation menjadi 400
-    ✓ [UNIT-13] JSON rusak dari body-parser menjadi 400 INVALID_JSON (4 ms)
-    ✓ [UNIT-14] HttpException bawaan Nest tetap berformat Problem Details (2 ms)
-    ✓ [UNIT-15] error tak dikenal menjadi 500 tanpa membocorkan detail (2 ms)
+    ✓ [UNIT-12] not null violation menjadi 400 (1 ms)
+    ✓ [UNIT-13] JSON rusak dari body-parser menjadi 400 INVALID_JSON (2 ms)
+    ✓ [UNIT-14] HttpException bawaan Nest tetap berformat Problem Details (1 ms)
+    ✓ [UNIT-15] error tak dikenal menjadi 500 tanpa membocorkan detail (1 ms)
 
-PASS src/common/pagination.spec.ts (7.348 s)
+PASS src/common/pagination.spec.ts (7.352 s)
   pagination
-    ✓ [UNIT-07] menghitung meta halaman (8 ms)
-    ✓ [UNIT-08] data kosong tetap punya satu halaman
+    ✓ [UNIT-07] menghitung meta halaman (66 ms)
+    ✓ [UNIT-08] data kosong tetap punya satu halaman (3 ms)
     ✓ [UNIT-09] wildcard LIKE di-escape (1 ms)
 
-PASS src/appointments/appointments.service.spec.ts (7.68 s)
+PASS src/appointments/appointments.service.spec.ts (7.709 s)
   AppointmentsService
-    ✓ [UNIT-22] tanggal masa lalu ditolak sebelum transaksi dimulai (16 ms)
-    ✓ [UNIT-23] kuota terlampaui melempar QUOTA_FULL (2 ms)
-    ✓ [UNIT-24] dokter nonaktif ditolak (2 ms)
+    ✓ [UNIT-22] tanggal masa lalu ditolak sebelum transaksi dimulai (17 ms)
+    ✓ [UNIT-23] kuota terlampaui melempar QUOTA_FULL (3 ms)
+    ✓ [UNIT-24] dokter nonaktif ditolak (3 ms)
     ✓ [UNIT-25] transisi status COMPLETED ke SCHEDULED ditolak (2 ms)
-    ✓ [UNIT-25] transisi status CANCELLED ke CHECKED_IN ditolak (3 ms)
+    ✓ [UNIT-25] transisi status CANCELLED ke CHECKED_IN ditolak (2 ms)
     ✓ [UNIT-25] transisi status SCHEDULED ke COMPLETED ditolak (1 ms)
-    ✓ [UNIT-26] janji yang sudah selesai tidak dapat dihapus (1 ms)
+    ✓ [UNIT-26] janji yang sudah selesai tidak dapat dihapus (2 ms)
 
-PASS src/patients/patients.service.spec.ts (7.709 s)
+PASS src/patients/patients.service.spec.ts (7.712 s)
   PatientsService
-    ✓ [UNIT-16] get melempar 404 bila pasien tidak ada (16 ms)
+    ✓ [UNIT-16] get melempar 404 bila pasien tidak ada (17 ms)
     ✓ [UNIT-17] patch tanpa If-Match ditolak 428 dan tidak menyentuh database (3 ms)
     ✓ [UNIT-18] patch memakai versi terbaca untuk update atomik (2 ms)
-    ✓ [UNIT-19] update kalah balapan (affected 0) menghasilkan 412 (3 ms)
+    ✓ [UNIT-19] update kalah balapan (affected 0) menghasilkan 412 (1 ms)
     ✓ [UNIT-20] body patch kosong ditolak (3 ms)
     ✓ [UNIT-21] tanggal lahir masa depan ditolak (1 ms)
 
 Test Suites: 6 passed, 6 total
 Tests:       33 passed, 33 total
 Snapshots:   0 total
-Time:        8.632 s, estimated 9 s
+Time:        8.745 s
 Ran all test suites.
 Test results written to: reports/unit.json
