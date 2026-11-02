@@ -1,0 +1,1 @@
+module.exports={moduleFileExtensions:["js","json","ts"],rootDir:".",testEnvironment:"node",transform:{"^.+\.ts$":["ts-jest",{diagnostics:true}]},testRegex:'src/.*\.spec\.ts$',collectCoverageFrom:['src/**/*.service.ts','src/common/**/*.ts'],coverageDirectory:'coverage'};

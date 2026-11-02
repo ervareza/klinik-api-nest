@@ -1,0 +1,1 @@
+module.exports={moduleFileExtensions:["js","json","ts"],rootDir:".",testEnvironment:"node",transform:{"^.+\.ts$":["ts-jest",{diagnostics:true}]},testRegex:'test/e2e/.*\.spec\.ts$',globalSetup:'<rootDir>/test/global-setup.ts'};
