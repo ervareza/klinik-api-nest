@@ -1,0 +1,1142 @@
+openapi: 3.0.0
+paths:
+  /api/v1/patients:
+    get:
+      operationId: PatientsController_list_v1
+      parameters:
+        - name: page
+          required: false
+          in: query
+          schema:
+            minimum: 1
+            maximum: 1000000
+            default: 1
+            type: number
+        - name: limit
+          required: false
+          in: query
+          schema:
+            minimum: 1
+            maximum: 100
+            default: 10
+            type: number
+        - name: sortOrder
+          required: false
+          in: query
+          schema:
+            default: desc
+            type: string
+            enum:
+              - asc
+              - desc
+        - name: q
+          required: false
+          in: query
+          description: Cari pada nama atau nomor rekam medis.
+          schema:
+            example: siti
+            type: string
+        - name: gender
+          required: false
+          in: query
+          schema:
+            type: string
+            enum:
+              - MALE
+              - FEMALE
+        - name: sortBy
+          required: false
+          in: query
+          schema:
+            default: createdAt
+            type: string
+            enum:
+              - createdAt
+              - fullName
+              - birthDate
+              - medicalRecordNumber
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PatientListResponseDto'
+        '400':
+          description: Parameter query tidak valid
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetailsDto'
+      summary: Daftar pasien dengan filter, sorting, dan pagination
+      tags:
+        - patients
+    post:
+      operationId: PatientsController_create_v1
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePatientDto'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Patient'
+        '400':
+          description: Validasi gagal atau JSON tidak valid
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetailsDto'
+        '409':
+          description: Nomor rekam medis atau NIK sudah terdaftar
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetailsDto'
+      summary: Mendaftarkan pasien baru
+      tags:
+        - patients
+  /api/v1/patients/{id}:
+    get:
+      operationId: PatientsController_get_v1
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Berhasil; header ETag berisi versi data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Patient'
+        '304':
+          description: Data tidak berubah (If-None-Match cocok)
+        '400':
+          description: ID tidak valid
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetailsDto'
+        '404':
+          description: Pasien tidak ditemukan
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetailsDto'
+      summary: Detail pasien beserta header ETag
+      tags:
+        - patients
+    put:
+      operationId: PatientsController_replace_v1
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: number
+        - name: If-Match
+          in: header
+          description: 'ETag terbaru dari GET, contoh: "1"'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePatientDto'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Patient'
+        '400':
+          description: Validasi gagal
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetailsDto'
+        '404':
+          description: Pasien tidak ditemukan
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetailsDto'
+        '409':
+          description: Nomor rekam medis atau NIK dipakai pasien lain
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetailsDto'
+        '412':
+          description: ETag tidak cocok dengan versi terbaru
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetailsDto'
+        '428':
+          description: Header If-Match tidak dikirim
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetailsDto'
+      summary: Mengganti seluruh data pasien
+      tags:
+        - patients
+    patch:
+      operationId: PatientsController_patch_v1
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: number
+        - name: If-Match
+          in: header
+          description: 'ETag terbaru dari GET, contoh: "1"'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchPatientDto'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Patient'
+        '400':
+          description: Validasi gagal atau body kosong
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetailsDto'
+        '404':
+          description: Pasien tidak ditemukan
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetailsDto'
+        '409':
+          description: Nomor rekam medis atau NIK dipakai pasien lain
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetailsDto'
+        '412':
+          description: ETag tidak cocok dengan versi terbaru
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetailsDto'
+        '428':
+          description: Header If-Match tidak dikirim
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetailsDto'
+      summary: Mengubah sebagian data pasien
+      tags:
+        - patients
+    delete:
+      operationId: PatientsController_remove_v1
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: number
+      responses:
+        '204':
+          description: Berhasil dihapus
+        '400':
+          description: ID tidak valid
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetailsDto'
+        '404':
+          description: Pasien tidak ditemukan
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetailsDto'
+        '409':
+          description: Pasien masih memiliki riwayat janji temu
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetailsDto'
+      summary: Menghapus pasien tanpa riwayat janji temu
+      tags:
+        - patients
+  /api/v1/doctors:
+    get:
+      operationId: DoctorsController_list_v1
+      parameters:
+        - name: page
+          required: false
+          in: query
+          schema:
+            minimum: 1
+            maximum: 1000000
+            default: 1
+            type: number
+        - name: limit
+          required: false
+          in: query
+          schema:
+            minimum: 1
+            maximum: 100
+            default: 10
+            type: number
+        - name: sortOrder
+          required: false
+          in: query
+          schema:
+            default: desc
+            type: string
+            enum:
+              - asc
+              - desc
+        - name: q
+          required: false
+          in: query
+          description: Cari pada nama atau nomor SIP.
+          schema:
+            example: hendra
+            type: string
+        - name: specialty
+          required: false
+          in: query
+          schema:
+            type: string
+            enum:
+              - UMUM
+              - GIGI
+              - ANAK
+              - KANDUNGAN
+              - PENYAKIT_DALAM
+        - name: isActive
+          required: false
+          in: query
+          schema:
+            type: boolean
+        - name: sortBy
+          required: false
+          in: query
+          schema:
+            default: createdAt
+            type: string
+            enum:
+              - createdAt
+              - fullName
+              - specialty
+              - licenseNumber
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DoctorListResponseDto'
+        '400':
+          description: Parameter query tidak valid
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetailsDto'
+      summary: Daftar dokter (boleh di-cache 60 detik)
+      tags:
+        - doctors
+    post:
+      operationId: DoctorsController_create_v1
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDoctorDto'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Doctor'
+        '400':
+          description: Validasi gagal
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetailsDto'
+        '409':
+          description: Nomor SIP sudah terdaftar
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetailsDto'
+      summary: Menambah dokter
+      tags:
+        - doctors
+  /api/v1/doctors/{id}:
+    get:
+      operationId: DoctorsController_get_v1
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: number
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Doctor'
+        '400':
+          description: ID tidak valid
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetailsDto'
+        '404':
+          description: Dokter tidak ditemukan
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetailsDto'
+      summary: Detail dokter
+      tags:
+        - doctors
+    put:
+      operationId: DoctorsController_replace_v1
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDoctorDto'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Doctor'
+        '400':
+          description: Validasi gagal
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetailsDto'
+        '404':
+          description: Dokter tidak ditemukan
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetailsDto'
+        '409':
+          description: Nomor SIP dipakai dokter lain
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetailsDto'
+      summary: Mengganti seluruh data dokter
+      tags:
+        - doctors
+    delete:
+      operationId: DoctorsController_remove_v1
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: number
+      responses:
+        '204':
+          description: Berhasil dihapus
+        '400':
+          description: ID tidak valid
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetailsDto'
+        '404':
+          description: Dokter tidak ditemukan
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetailsDto'
+        '409':
+          description: Dokter masih memiliki riwayat janji temu
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetailsDto'
+      summary: Menghapus dokter tanpa riwayat janji temu
+      tags:
+        - doctors
+  /api/v1/appointments:
+    get:
+      operationId: AppointmentsController_list_v1
+      parameters:
+        - name: page
+          required: false
+          in: query
+          schema:
+            minimum: 1
+            maximum: 1000000
+            default: 1
+            type: number
+        - name: limit
+          required: false
+          in: query
+          schema:
+            minimum: 1
+            maximum: 100
+            default: 10
+            type: number
+        - name: sortOrder
+          required: false
+          in: query
+          schema:
+            default: desc
+            type: string
+            enum:
+              - asc
+              - desc
+        - name: patientId
+          required: false
+          in: query
+          schema:
+            type: number
+        - name: doctorId
+          required: false
+          in: query
+          schema:
+            type: number
+        - name: status
+          required: false
+          in: query
+          schema:
+            type: string
+            enum:
+              - SCHEDULED
+              - CHECKED_IN
+              - COMPLETED
+              - CANCELLED
+        - name: dateFrom
+          required: false
+          in: query
+          schema:
+            format: date
+            example: '2030-01-01'
+            type: string
+        - name: dateTo
+          required: false
+          in: query
+          schema:
+            format: date
+            example: '2030-01-31'
+            type: string
+        - name: sortBy
+          required: false
+          in: query
+          schema:
+            default: appointmentDate
+            type: string
+            enum:
+              - appointmentDate
+              - queueNumber
+              - createdAt
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppointmentListResponseDto'
+        '400':
+          description: Parameter query tidak valid
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetailsDto'
+      summary: Daftar janji temu dengan filter, sorting, dan pagination
+      tags:
+        - appointments
+    post:
+      operationId: AppointmentsController_book_v1
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAppointmentDto'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Appointment'
+        '400':
+          description: Validasi gagal atau tanggal di masa lalu
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetailsDto'
+        '404':
+          description: Pasien atau dokter tidak ditemukan
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetailsDto'
+        '409':
+          description: Kuota penuh, dokter nonaktif, atau pasien sudah memiliki janji aktif
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetailsDto'
+      summary: Memesan janji temu (transaksi database)
+      tags:
+        - appointments
+  /api/v1/appointments/{id}:
+    get:
+      operationId: AppointmentsController_get_v1
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: number
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Appointment'
+        '400':
+          description: ID tidak valid
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetailsDto'
+        '404':
+          description: Janji temu tidak ditemukan
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetailsDto'
+      summary: Detail janji temu
+      tags:
+        - appointments
+    patch:
+      operationId: AppointmentsController_updateStatus_v1
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAppointmentStatusDto'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Appointment'
+        '400':
+          description: Status tidak valid
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetailsDto'
+        '404':
+          description: Janji temu tidak ditemukan
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetailsDto'
+        '409':
+          description: Perubahan status tidak diperbolehkan
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetailsDto'
+      summary: Mengubah status janji temu
+      tags:
+        - appointments
+    delete:
+      operationId: AppointmentsController_remove_v1
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: number
+      responses:
+        '204':
+          description: Berhasil dihapus
+        '400':
+          description: ID tidak valid
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetailsDto'
+        '404':
+          description: Janji temu tidak ditemukan
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetailsDto'
+        '409':
+          description: Janji temu sudah berjalan atau selesai
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetailsDto'
+      summary: Menghapus janji temu yang belum berjalan
+      tags:
+        - appointments
+info:
+  title: Klinik REST API
+  description: 'REST API sistem klinik: pasien, dokter, dan janji temu. Error memakai RFC 9457 Problem Details.'
+  version: 1.0.0
+  contact:
+    name: Ervareza Naurian Novantila
+    url: ''
+    email: ''
+tags: []
+servers:
+  - url: http://localhost:3000
+    description: Lokal
+components:
+  schemas:
+    FieldErrorDto:
+      type: object
+      properties:
+        field:
+          type: string
+          example: nik
+        message:
+          type: string
+          example: nik harus terdiri dari 16 digit angka
+      required:
+        - field
+        - message
+    ProblemDetailsDto:
+      type: object
+      properties:
+        type:
+          type: string
+          example: https://api.klinik.example/problems/validation-error
+        title:
+          type: string
+          example: Validasi gagal
+        status:
+          type: number
+          example: 400
+        detail:
+          type: string
+          example: Satu atau lebih field tidak valid.
+        code:
+          type: string
+          example: VALIDATION_ERROR
+        instance:
+          type: string
+          example: /api/v1/patients
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/FieldErrorDto'
+      required:
+        - type
+        - title
+        - status
+        - detail
+        - code
+        - instance
+    Patient:
+      type: object
+      properties:
+        id:
+          type: number
+          example: 1
+        medicalRecordNumber:
+          type: string
+          example: RM-000001
+        nik:
+          type: string
+          example: '3273011203900001'
+        fullName:
+          type: string
+          example: Siti Rahmawati
+        birthDate:
+          type: string
+          example: '1990-03-12'
+        gender:
+          type: string
+          enum:
+            - MALE
+            - FEMALE
+          example: FEMALE
+        phone:
+          type: string
+          example: '+6281234567001'
+        address:
+          type: object
+          example: Jl. Merdeka No. 10, Bandung
+          nullable: true
+        version:
+          type: number
+          example: 1
+          description: Versi data; menjadi nilai ETag.
+        createdAt:
+          format: date-time
+          type: string
+        updatedAt:
+          format: date-time
+          type: string
+      required:
+        - id
+        - medicalRecordNumber
+        - nik
+        - fullName
+        - birthDate
+        - gender
+        - phone
+        - version
+        - createdAt
+        - updatedAt
+    PageMetaDto:
+      type: object
+      properties:
+        page:
+          type: number
+          example: 1
+        limit:
+          type: number
+          example: 10
+        totalItems:
+          type: number
+          example: 42
+        totalPages:
+          type: number
+          example: 5
+        hasNextPage:
+          type: boolean
+          example: true
+        hasPrevPage:
+          type: boolean
+          example: false
+      required:
+        - page
+        - limit
+        - totalItems
+        - totalPages
+        - hasNextPage
+        - hasPrevPage
+    PatientListResponseDto:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Patient'
+        meta:
+          $ref: '#/components/schemas/PageMetaDto'
+      required:
+        - data
+        - meta
+    CreatePatientDto:
+      type: object
+      properties:
+        medicalRecordNumber:
+          type: string
+          example: RM-000001
+          description: Format RM-diikuti 6 digit.
+        nik:
+          type: string
+          example: '3273011203900001'
+          description: NIK 16 digit.
+        fullName:
+          type: string
+          example: Siti Rahmawati
+          minLength: 2
+          maxLength: 100
+        birthDate:
+          type: string
+          example: '1990-03-12'
+          format: date
+        gender:
+          type: string
+          enum:
+            - MALE
+            - FEMALE
+          example: FEMALE
+        phone:
+          type: string
+          example: '+6281234567001'
+        address:
+          type: object
+          example: Jl. Merdeka No. 10, Bandung
+          maxLength: 255
+      required:
+        - medicalRecordNumber
+        - nik
+        - fullName
+        - birthDate
+        - gender
+        - phone
+    PatchPatientDto:
+      type: object
+      properties:
+        medicalRecordNumber:
+          type: string
+          example: RM-000001
+          description: Format RM-diikuti 6 digit.
+        nik:
+          type: string
+          example: '3273011203900001'
+          description: NIK 16 digit.
+        fullName:
+          type: string
+          example: Siti Rahmawati
+          minLength: 2
+          maxLength: 100
+        birthDate:
+          type: string
+          example: '1990-03-12'
+          format: date
+        gender:
+          type: string
+          enum:
+            - MALE
+            - FEMALE
+          example: FEMALE
+        phone:
+          type: string
+          example: '+6281234567001'
+        address:
+          type: object
+          example: Jl. Merdeka No. 10, Bandung
+          maxLength: 255
+    Doctor:
+      type: object
+      properties:
+        id:
+          type: number
+          example: 1
+        licenseNumber:
+          type: string
+          example: SIP-2024-0001
+          description: Nomor Surat Izin Praktik
+        fullName:
+          type: string
+          example: dr. Hendra Wijaya
+        specialty:
+          type: string
+          enum:
+            - UMUM
+            - GIGI
+            - ANAK
+            - KANDUNGAN
+            - PENYAKIT_DALAM
+          example: UMUM
+        dailyQuota:
+          type: number
+          example: 20
+          description: Kuota pasien per hari
+        isActive:
+          type: boolean
+          example: true
+        createdAt:
+          format: date-time
+          type: string
+        updatedAt:
+          format: date-time
+          type: string
+      required:
+        - id
+        - licenseNumber
+        - fullName
+        - specialty
+        - dailyQuota
+        - isActive
+        - createdAt
+        - updatedAt
+    DoctorListResponseDto:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Doctor'
+        meta:
+          $ref: '#/components/schemas/PageMetaDto'
+      required:
+        - data
+        - meta
+    CreateDoctorDto:
+      type: object
+      properties:
+        licenseNumber:
+          type: string
+          example: SIP-2024-0001
+        fullName:
+          type: string
+          example: dr. Hendra Wijaya
+          minLength: 2
+          maxLength: 100
+        specialty:
+          type: string
+          enum:
+            - UMUM
+            - GIGI
+            - ANAK
+            - KANDUNGAN
+            - PENYAKIT_DALAM
+          example: UMUM
+        dailyQuota:
+          type: number
+          example: 20
+          minimum: 1
+          maximum: 100
+        isActive:
+          type: boolean
+          example: true
+          default: true
+      required:
+        - licenseNumber
+        - fullName
+        - specialty
+        - dailyQuota
+    Appointment:
+      type: object
+      properties:
+        id:
+          type: number
+          example: 1
+        patientId:
+          type: number
+          example: 1
+        doctorId:
+          type: number
+          example: 1
+        appointmentDate:
+          type: string
+          example: '2030-01-15'
+        queueNumber:
+          type: number
+          example: 1
+          description: Nomor antrean per dokter per tanggal
+        complaint:
+          type: string
+          example: Demam dan batuk sejak tiga hari lalu
+        status:
+          type: string
+          enum:
+            - SCHEDULED
+            - CHECKED_IN
+            - COMPLETED
+            - CANCELLED
+          example: SCHEDULED
+        createdAt:
+          format: date-time
+          type: string
+        updatedAt:
+          format: date-time
+          type: string
+      required:
+        - id
+        - patientId
+        - doctorId
+        - appointmentDate
+        - queueNumber
+        - complaint
+        - status
+        - createdAt
+        - updatedAt
+    AppointmentListResponseDto:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Appointment'
+        meta:
+          $ref: '#/components/schemas/PageMetaDto'
+      required:
+        - data
+        - meta
+    CreateAppointmentDto:
+      type: object
+      properties:
+        patientId:
+          type: number
+          example: 1
+        doctorId:
+          type: number
+          example: 1
+        appointmentDate:
+          type: string
+          example: '2030-01-15'
+          format: date
+        complaint:
+          type: string
+          example: Demam dan batuk sejak tiga hari lalu
+          minLength: 5
+          maxLength: 500
+      required:
+        - patientId
+        - doctorId
+        - appointmentDate
+        - complaint
+    UpdateAppointmentStatusDto:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+            - SCHEDULED
+            - CHECKED_IN
+            - COMPLETED
+            - CANCELLED
+          example: CHECKED_IN
+      required:
+        - status
