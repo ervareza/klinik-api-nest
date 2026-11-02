@@ -1,0 +1,21 @@
+PASS test/integration/database.integration.spec.ts
+  Integrasi repository + PostgreSQL
+    ✓ [INT-01] seluruh migration sudah diterapkan (27 ms)
+    ✓ [INT-02] constraint UNIQUE menolak NIK duplikat (23505) (27 ms)
+    ✓ [INT-03] constraint NOT NULL menolak nama kosong (23502) (12 ms)
+    ✓ [INT-04] constraint CHECK menolak kuota dokter nol (23514) (8 ms)
+    ✓ [INT-05] foreign key menolak penghapusan pasien yang punya janji (23503) (24 ms)
+    ✓ [INT-06] update versi lama tidak mengubah baris dan versi naik saat berhasil (21 ms)
+    ✓ [INT-07] sorting dengan nilai sama stabil karena tie-breaker id (19 ms)
+    ✓ [INT-08] pencarian memperlakukan % sebagai teks, bukan wildcard (9 ms)
+    Transaksi pemesanan
+      ✓ [INT-09] COMMIT: janji temu tersimpan dengan nomor antrean berurutan (18 ms)
+      ✓ [INT-10] ROLLBACK: kuota penuh membatalkan insert yang sudah dilakukan (19 ms)
+      ✓ [INT-11] pemesanan bersamaan tidak melampaui kuota (row lock) (45 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       11 passed, 11 total
+Snapshots:   0 total
+Time:        1.064 s, estimated 2 s
+Ran all test suites.
+Test results written to: reports/integration.json

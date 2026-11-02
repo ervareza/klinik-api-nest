@@ -1,0 +1,62 @@
+                                            Table "public.patients"
+        Column         |           Type           | Collation | Nullable |               Default                
+-----------------------+--------------------------+-----------+----------+--------------------------------------
+ id                    | integer                  |           | not null | nextval('patients_id_seq'::regclass)
+ medical_record_number | character varying(9)     |           | not null | 
+ nik                   | character(16)            |           | not null | 
+ full_name             | character varying(100)   |           | not null | 
+ birth_date            | date                     |           | not null | 
+ gender                | character varying(6)     |           | not null | 
+ phone                 | character varying(16)    |           | not null | 
+ address               | character varying(255)   |           |          | 
+ version               | integer                  |           | not null | 1
+ created_at            | timestamp with time zone |           | not null | now()
+ updated_at            | timestamp with time zone |           | not null | now()
+Indexes:
+    "pk_patients" PRIMARY KEY, btree (id)
+    "ix_patients_full_name" btree (full_name)
+    "uq_patients_medical_record_number" UNIQUE CONSTRAINT, btree (medical_record_number)
+    "uq_patients_nik" UNIQUE CONSTRAINT, btree (nik)
+Check constraints:
+    "ck_patients_gender" CHECK (gender::text = ANY (ARRAY['MALE'::character varying, 'FEMALE'::character varying]::text[]))
+Referenced by:
+    TABLE "appointments" CONSTRAINT "fk_appointments_patient" FOREIGN KEY (patient_id) REFERENCES patients(id) ON DELETE RESTRICT
+
+                                          Table "public.appointments"
+      Column      |           Type           | Collation | Nullable |                 Default                  
+------------------+--------------------------+-----------+----------+------------------------------------------
+ id               | integer                  |           | not null | nextval('appointments_id_seq'::regclass)
+ patient_id       | integer                  |           | not null | 
+ doctor_id        | integer                  |           | not null | 
+ appointment_date | date                     |           | not null | 
+ queue_number     | integer                  |           | not null | 
+ complaint        | character varying(500)   |           | not null | 
+ status           | character varying(12)    |           | not null | 'SCHEDULED'::character varying
+ created_at       | timestamp with time zone |           | not null | now()
+ updated_at       | timestamp with time zone |           | not null | now()
+Indexes:
+    "pk_appointments" PRIMARY KEY, btree (id)
+    "ix_appointments_date" btree (appointment_date)
+    "uq_appointments_active_booking" UNIQUE, btree (patient_id, doctor_id, appointment_date) WHERE status::text <> 'CANCELLED'::text
+    "uq_appointments_doctor_date_queue" UNIQUE CONSTRAINT, btree (doctor_id, appointment_date, queue_number)
+Check constraints:
+    "ck_appointments_status" CHECK (status::text = ANY (ARRAY['SCHEDULED'::character varying, 'CHECKED_IN'::character varying, 'COMPLETED'::character varying, 'CANCELLED'::character varying]::text[]))
+Foreign-key constraints:
+    "fk_appointments_doctor" FOREIGN KEY (doctor_id) REFERENCES doctors(id) ON DELETE RESTRICT
+    "fk_appointments_patient" FOREIGN KEY (patient_id) REFERENCES patients(id) ON DELETE RESTRICT
+
+ id | medical_record_number |   full_name    | version 
+----+-----------------------+----------------+---------
+  1 | RM-000001             | Siti Rahmawati |       1
+  2 | RM-000002             | Agus Setiawan  |       1
+  3 | RM-000003             | Dewi Lestari   |       1
+  4 | RM-000004             | Rizky Ramadhan |       1
+  5 | RM-000005             | Anisa Putri    |       1
+(5 rows)
+
+ id |   timestamp   |                 name                  
+----+---------------+---------------------------------------
+  1 | 1790000000000 | CreatePatientsAndDoctors1790000000000
+  2 | 1790000100000 | CreateAppointments1790000100000
+(2 rows)
+

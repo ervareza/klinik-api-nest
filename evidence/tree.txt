@@ -1,0 +1,73 @@
+klinik-api-nest/
+├── .env.example
+├── .gitignore
+├── README.md
+├── jest.e2e.config.js
+├── jest.integration.config.js
+├── jest.unit.config.js
+├── nest-cli.json
+├── openapi.yaml
+├── package-lock.json
+├── package.json
+├── postman
+│   └── klinik-api.postman_collection.json
+├── src
+│   ├── app.module.ts
+│   ├── app.setup.ts
+│   ├── appointments
+│   │   ├── appointment.entity.ts
+│   │   ├── appointments.controller.ts
+│   │   ├── appointments.module.ts
+│   │   ├── appointments.repository.ts
+│   │   ├── appointments.service.spec.ts
+│   │   ├── appointments.service.ts
+│   │   └── dto
+│   │       └── appointment.dto.ts
+│   ├── common
+│   │   ├── etag.util.spec.ts
+│   │   ├── etag.util.ts
+│   │   ├── id-param.pipe.spec.ts
+│   │   ├── id-param.pipe.ts
+│   │   ├── pagination.spec.ts
+│   │   ├── pagination.ts
+│   │   ├── problem-details.dto.ts
+│   │   ├── problem-details.filter.spec.ts
+│   │   ├── problem-details.filter.ts
+│   │   └── problem.exception.ts
+│   ├── database
+│   │   ├── data-source.ts
+│   │   ├── migrations
+│   │   │   ├── 1790000000000-CreatePatientsAndDoctors.ts
+│   │   │   └── 1790000100000-CreateAppointments.ts
+│   │   └── seed.ts
+│   ├── doctors
+│   │   ├── doctor.entity.ts
+│   │   ├── doctors.controller.ts
+│   │   ├── doctors.module.ts
+│   │   ├── doctors.repository.ts
+│   │   ├── doctors.service.ts
+│   │   └── dto
+│   │       └── doctor.dto.ts
+│   ├── main.ts
+│   ├── openapi-export.ts
+│   └── patients
+│       ├── dto
+│       │   └── patient.dto.ts
+│       ├── patient.entity.ts
+│       ├── patients.controller.ts
+│       ├── patients.module.ts
+│       ├── patients.repository.ts
+│       ├── patients.service.spec.ts
+│       └── patients.service.ts
+├── test
+│   ├── e2e
+│   │   └── api.e2e.spec.ts
+│   ├── global-setup.ts
+│   ├── helpers.ts
+│   └── integration
+│       └── database.integration.spec.ts
+├── tools
+│   ├── build-postman.js
+│   └── capture-curl.sh
+├── tsconfig.build.json
+└── tsconfig.json

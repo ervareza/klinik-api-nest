@@ -1,0 +1,12 @@
+$ curl -i '-H' 'Accept: application/json' 'http://localhost:3000/api/v1/doctors?specialty=UMUM'
+HTTP/1.1 200 OK
+X-Powered-By: Express
+Cache-Control: public, max-age=60
+Content-Type: application/json; charset=utf-8
+Content-Length: 310
+ETag: W/"136-GXCYfEPCOGWv3ikH44/32KU1eqA"
+Date: Mon, 02 Nov 2026 01:52:49 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+{"data":[{"id":1,"licenseNumber":"SIP-2024-0001","fullName":"dr. Hendra Wijaya","specialty":"UMUM","dailyQuota":20,"isActive":true,"createdAt":"2026-11-02T01:52:49.266Z","updatedAt":"2026-11-02T01:52:49.266Z"}],"meta":{"page":1,"limit":10,"totalItems":1,"totalPages":1,"hasNextPage":false,"hasPrevPage":false}}

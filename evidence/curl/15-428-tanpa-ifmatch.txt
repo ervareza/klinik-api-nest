@@ -1,0 +1,11 @@
+$ curl -i '-X' 'PATCH' 'http://localhost:3000/api/v1/patients/1' '-H' 'Content-Type: application/json' '-d' '{"phone":"+6281200000199"}'
+HTTP/1.1 428 Precondition Required
+X-Powered-By: Express
+Content-Type: application/problem+json; charset=utf-8
+Content-Length: 261
+ETag: W/"105-Mq3PiY/W7xlXRxYj5gTD3oI6dus"
+Date: Mon, 02 Nov 2026 01:52:49 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+{"type":"https://api.klinik.example/problems/precondition-required","title":"Header If-Match wajib dikirim","status":428,"detail":"Ambil ETag terbaru lewat GET, lalu kirim sebagai header If-Match.","code":"PRECONDITION_REQUIRED","instance":"/api/v1/patients/1"}

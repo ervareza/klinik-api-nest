@@ -1,0 +1,11 @@
+$ curl -i '-X' 'POST' 'http://localhost:3000/api/v1/patients' '-H' 'Content-Type: application/json' '-H' 'Accept: application/json' '-d' '{"medicalRecordNumber":"RM-000001","nik":"3273010000000200","fullName":"Duplikat RM","birthDate":"1992-08-17","gender":"MALE","phone":"+6281200000100"}'
+HTTP/1.1 409 Conflict
+X-Powered-By: Express
+Content-Type: application/problem+json; charset=utf-8
+Content-Length: 225
+ETag: W/"e1-PDxDeti22RG+eeDKaB8mTGgan/w"
+Date: Mon, 02 Nov 2026 01:52:49 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+{"type":"https://api.klinik.example/problems/medical-record-number-exists","title":"Konflik data","status":409,"detail":"Nomor rekam medis sudah terdaftar.","code":"MEDICAL_RECORD_NUMBER_EXISTS","instance":"/api/v1/patients"}

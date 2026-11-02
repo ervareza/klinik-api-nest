@@ -1,0 +1,11 @@
+$ curl -i '-X' 'PATCH' 'http://localhost:3000/api/v1/patients/1' '-H' 'Content-Type: application/json' '-H' 'If-Match: "9"' '-d' '{"phone":"+6281200000199"}'
+HTTP/1.1 412 Precondition Failed
+X-Powered-By: Express
+Content-Type: application/problem+json; charset=utf-8
+Content-Length: 255
+ETag: W/"ff-bYMLJQhy3wAmQ/RopYJr+OtUuO4"
+Date: Mon, 02 Nov 2026 01:52:49 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+{"type":"https://api.klinik.example/problems/version-conflict","title":"Versi data sudah berubah","status":412,"detail":"Data telah diubah pengguna lain. Ambil data terbaru lalu ulangi perubahan.","code":"VERSION_CONFLICT","instance":"/api/v1/patients/1"}

@@ -1,0 +1,10 @@
+$ curl -i '-H' 'If-None-Match: "1"' 'http://localhost:3000/api/v1/patients/1'
+HTTP/1.1 304 Not Modified
+X-Powered-By: Express
+Cache-Control: private, no-cache
+ETag: "1"
+Date: Mon, 02 Nov 2026 01:52:49 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+

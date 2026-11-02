@@ -1,0 +1,12 @@
+$ curl -i '-H' 'Accept: application/json' 'http://localhost:3000/api/v1/patients/99999'
+HTTP/1.1 404 Not Found
+X-Powered-By: Express
+Cache-Control: private, no-cache
+Content-Type: application/problem+json; charset=utf-8
+Content-Length: 222
+ETag: W/"de-BNEW/aSW778ZB7UgDPz1ouXAZcU"
+Date: Mon, 02 Nov 2026 01:52:49 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+{"type":"https://api.klinik.example/problems/patient-not-found","title":"Data tidak ditemukan","status":404,"detail":"Pasien dengan id 99999 tidak ditemukan.","code":"PATIENT_NOT_FOUND","instance":"/api/v1/patients/99999"}

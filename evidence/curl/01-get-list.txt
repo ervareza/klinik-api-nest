@@ -1,0 +1,12 @@
+$ curl -i '-H' 'Accept: application/json' 'http://localhost:3000/api/v1/patients?gender=FEMALE&sortBy=fullName&sortOrder=asc&page=1&limit=2'
+HTTP/1.1 200 OK
+X-Powered-By: Express
+Cache-Control: no-store
+Content-Type: application/json; charset=utf-8
+Content-Length: 640
+ETag: W/"280-dfrnqTsejaEIZ/5iCc2W8cA+wys"
+Date: Mon, 02 Nov 2026 01:52:49 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+{"data":[{"id":5,"medicalRecordNumber":"RM-000005","nik":"3273010101150005","fullName":"Anisa Putri","birthDate":"2015-01-01","gender":"FEMALE","phone":"+6281234567005","address":null,"version":1,"createdAt":"2026-11-02T01:52:49.278Z","updatedAt":"2026-11-02T01:52:49.278Z"},{"id":3,"medicalRecordNumber":"RM-000003","nik":"3273010707000003","fullName":"Dewi Lestari","birthDate":"2000-07-07","gender":"FEMALE","phone":"+6281234567003","address":null,"version":1,"createdAt":"2026-11-02T01:52:49.278Z","updatedAt":"2026-11-02T01:52:49.278Z"}],"meta":{"page":1,"limit":2,"totalItems":3,"totalPages":2,"hasNextPage":true,"hasPrevPage":false}}

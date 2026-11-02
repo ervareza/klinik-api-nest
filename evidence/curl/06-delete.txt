@@ -1,0 +1,8 @@
+$ curl -i '-X' 'DELETE' 'http://localhost:3000/api/v1/patients/6' '-H' 'Accept: application/json'
+HTTP/1.1 204 No Content
+X-Powered-By: Express
+Date: Mon, 02 Nov 2026 01:52:49 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+

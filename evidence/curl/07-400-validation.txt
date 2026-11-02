@@ -1,0 +1,11 @@
+$ curl -i '-X' 'POST' 'http://localhost:3000/api/v1/patients' '-H' 'Content-Type: application/json' '-H' 'Accept: application/json' '-d' '{"medicalRecordNumber":"ABC","nik":"123","fullName":"A","birthDate":"12-03-1990","gender":"OTHER","phone":"abc"}'
+HTTP/1.1 400 Bad Request
+X-Powered-By: Express
+Content-Type: application/problem+json; charset=utf-8
+Content-Length: 773
+ETag: W/"305-h2gfwAJ1H7Ju1nLW1ckISlrF4Js"
+Date: Mon, 02 Nov 2026 01:52:49 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+{"type":"https://api.klinik.example/problems/validation-error","title":"Validasi gagal","status":400,"detail":"Satu atau lebih field tidak valid.","code":"VALIDATION_ERROR","errors":[{"field":"medicalRecordNumber","message":"medicalRecordNumber harus berformat RM-000000"},{"field":"nik","message":"nik harus terdiri dari 16 digit angka"},{"field":"fullName","message":"fullName must be longer than or equal to 2 characters"},{"field":"birthDate","message":"birthDate harus berformat tanggal YYYY-MM-DD"},{"field":"birthDate","message":"birthDate harus berformat tanggal YYYY-MM-DD"},{"field":"gender","message":"gender must be one of the following values: MALE, FEMALE"},{"field":"phone","message":"phone harus 8-15 digit, boleh diawali +"}],"instance":"/api/v1/patients"}

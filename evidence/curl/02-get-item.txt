@@ -1,0 +1,12 @@
+$ curl -i '-H' 'Accept: application/json' 'http://localhost:3000/api/v1/patients/1'
+HTTP/1.1 200 OK
+X-Powered-By: Express
+Cache-Control: private, no-cache
+ETag: "1"
+Content-Type: application/json; charset=utf-8
+Content-Length: 293
+Date: Mon, 02 Nov 2026 01:52:49 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+{"id":1,"medicalRecordNumber":"RM-000001","nik":"3273011203900001","fullName":"Siti Rahmawati","birthDate":"1990-03-12","gender":"FEMALE","phone":"+6281234567001","address":"Jl. Merdeka No. 10, Bandung","version":1,"createdAt":"2026-11-02T01:52:49.278Z","updatedAt":"2026-11-02T01:52:49.278Z"}

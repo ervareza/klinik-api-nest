@@ -1,0 +1,11 @@
+$ curl -i '-X' 'POST' 'http://localhost:3000/api/v1/appointments' '-H' 'Content-Type: application/json' '-d' '{"patientId":3,"doctorId":3,"appointmentDate":"2035-06-15","complaint":"Anak sakit perut"}'
+HTTP/1.1 409 Conflict
+X-Powered-By: Express
+Content-Type: application/problem+json; charset=utf-8
+Content-Length: 211
+ETag: W/"d3-fvCzQV+TwUCKMY15jyf8gN+rAXw"
+Date: Mon, 02 Nov 2026 01:52:49 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+{"type":"https://api.klinik.example/problems/quota-full","title":"Konflik data","status":409,"detail":"Kuota dokter pada 2035-06-15 sudah penuh (2 pasien).","code":"QUOTA_FULL","instance":"/api/v1/appointments"}

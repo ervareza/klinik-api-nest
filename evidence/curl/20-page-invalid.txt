@@ -1,0 +1,12 @@
+$ curl -i '-H' 'Accept: application/json' 'http://localhost:3000/api/v1/patients?limit=101&sortBy=password'
+HTTP/1.1 400 Bad Request
+X-Powered-By: Express
+Cache-Control: no-store
+Content-Type: application/problem+json; charset=utf-8
+Content-Length: 432
+ETag: W/"1b0-WYeimIq97Q/1pGn4/iZtJnGAppU"
+Date: Mon, 02 Nov 2026 01:52:49 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+{"type":"https://api.klinik.example/problems/validation-error","title":"Validasi gagal","status":400,"detail":"Satu atau lebih field tidak valid.","code":"VALIDATION_ERROR","errors":[{"field":"sortBy","message":"sortBy must be one of the following values: createdAt, fullName, birthDate, medicalRecordNumber"},{"field":"limit","message":"limit must not be greater than 100"}],"instance":"/api/v1/patients?limit=101&sortBy=password"}

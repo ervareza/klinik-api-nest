@@ -1,0 +1,12 @@
+$ curl -i '-X' 'POST' 'http://localhost:3000/api/v1/patients' '-H' 'Content-Type: application/json' '-H' 'Accept: application/json' '-d' '{"medicalRecordNumber":"RM-000100","nik":"3273010000000100","fullName":"Budi Hartono","birthDate":"1992-08-17","gender":"MALE","phone":"+6281200000100","address":"Jl. Riau No. 7, Bandung"}'
+HTTP/1.1 201 Created
+X-Powered-By: Express
+Location: /api/v1/patients/6
+ETag: "1"
+Content-Type: application/json; charset=utf-8
+Content-Length: 285
+Date: Mon, 02 Nov 2026 01:52:49 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+{"id":6,"medicalRecordNumber":"RM-000100","nik":"3273010000000100","fullName":"Budi Hartono","birthDate":"1992-08-17","gender":"MALE","phone":"+6281200000100","address":"Jl. Riau No. 7, Bandung","version":1,"createdAt":"2026-11-02T01:52:49.459Z","updatedAt":"2026-11-02T01:52:49.459Z"}

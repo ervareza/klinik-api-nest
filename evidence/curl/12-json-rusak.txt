@@ -1,0 +1,11 @@
+$ curl -i '-X' 'POST' 'http://localhost:3000/api/v1/patients' '-H' 'Content-Type: application/json' '-d' '{"nik":'
+HTTP/1.1 400 Bad Request
+X-Powered-By: Express
+Content-Type: application/problem+json; charset=utf-8
+Content-Length: 204
+ETag: W/"cc-hapwNx+eXNMLpZx1WLwr3IE9u3s"
+Date: Mon, 02 Nov 2026 01:52:49 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+{"type":"https://api.klinik.example/problems/invalid-json","title":"Permintaan tidak valid","status":400,"detail":"Body request bukan JSON yang valid.","code":"INVALID_JSON","instance":"/api/v1/patients"}

@@ -1,0 +1,24 @@
+----------------------------|---------|----------|---------|---------|----------------------
+File                        | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s    
+----------------------------|---------|----------|---------|---------|----------------------
+All files                   |   66.37 |    55.22 |      60 |    67.7 |                      
+ appointments               |   72.22 |    46.66 |    87.5 |   76.08 |                      
+  appointments.service.ts   |   72.22 |    46.66 |    87.5 |   76.08 | 28-32,75-79,87-89,97 
+ common                     |    73.5 |    64.86 |   70.58 |      74 |                      
+  etag.util.ts              |     100 |      100 |     100 |     100 |                      
+  id-param.pipe.ts          |     100 |      100 |     100 |     100 |                      
+  pagination.ts             |      80 |      100 |      50 |      90 | 8,16                 
+  problem-details.dto.ts    |       0 |      100 |       0 |       0 | 1-21                 
+  problem-details.filter.ts |   73.52 |       56 |      50 |   74.19 | 96-106               
+  problem.exception.ts      |      95 |        0 |   83.33 |   94.11 | 37                   
+ doctors                    |       0 |        0 |       0 |       0 |                      
+  doctors.service.ts        |       0 |        0 |       0 |       0 | 1-35                 
+ patients                   |   73.52 |    54.54 |   55.55 |   72.41 |                      
+  patients.service.ts       |   73.52 |    54.54 |   55.55 |   72.41 | 20-21,31-38,51-52    
+----------------------------|---------|----------|---------|---------|----------------------
+
+Test Suites: 6 passed, 6 total
+Tests:       33 passed, 33 total
+Snapshots:   0 total
+Time:        11.202 s
+Ran all test suites.

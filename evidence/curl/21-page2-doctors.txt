@@ -1,0 +1,12 @@
+$ curl -i '-H' 'Accept: application/json' 'http://localhost:3000/api/v1/doctors?page=2&limit=2&sortBy=fullName&sortOrder=asc'
+HTTP/1.1 200 OK
+X-Powered-By: Express
+Cache-Control: public, max-age=60
+Content-Type: application/json; charset=utf-8
+Content-Length: 509
+ETag: W/"1fd-pAErvl49YIBLzxS03OcawsNQqKA"
+Date: Mon, 02 Nov 2026 01:52:49 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+{"data":[{"id":1,"licenseNumber":"SIP-2024-0001","fullName":"dr. Hendra Wijaya","specialty":"UMUM","dailyQuota":20,"isActive":true,"createdAt":"2026-11-02T01:52:49.266Z","updatedAt":"2026-11-02T01:52:49.266Z"},{"id":2,"licenseNumber":"SIP-2024-0002","fullName":"drg. Maya Safitri","specialty":"GIGI","dailyQuota":10,"isActive":true,"createdAt":"2026-11-02T01:52:49.266Z","updatedAt":"2026-11-02T01:52:49.266Z"}],"meta":{"page":2,"limit":2,"totalItems":4,"totalPages":2,"hasNextPage":false,"hasPrevPage":true}}
